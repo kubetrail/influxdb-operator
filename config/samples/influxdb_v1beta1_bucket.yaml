@@ -1,0 +1,6 @@
+apiVersion: influxdb.kubetrail.io/v1beta1
+kind: Bucket
+metadata:
+  name: bucket-sample
+spec:
+  # Add fields here

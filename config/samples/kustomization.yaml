@@ -1,0 +1,7 @@
+## Append samples you want in your CSV to this file as resources ##
+resources:
+- influxdb_v1beta1_config.yaml
+- influxdb_v1beta1_organization.yaml
+- influxdb_v1beta1_bucket.yaml
+- influxdb_v1beta1_token.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples
