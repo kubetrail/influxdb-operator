@@ -1,0 +1,8 @@
+# inject image pull secrets in manifests and reference
+# of it in deployment
+resources:
+- manifests.yaml  # run make deploy-dry-run to generate this file
+- artifact-registry-key.yaml
+
+patchesStrategicMerge:
+  - manager_image_pull_secrets_patch.yaml
