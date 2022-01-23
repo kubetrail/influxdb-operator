@@ -17,6 +17,8 @@ limitations under the License.
 package v1beta1
 
 import (
+	"fmt"
+	"github.com/google/uuid"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -42,7 +44,14 @@ var _ webhook.Defaulter = &Token{}
 func (r *Token) Default() {
 	tokenlog.Info("default", "name", r.Name)
 
-	// TODO(user): fill in your defaulting logic.
+	if len(r.Spec.SecretName) == 0 {
+		id := uuid.New().String()
+		r.Spec.SecretName = fmt.Sprintf("%s-%s", r.Name, id[:5])
+	}
+
+	if len(r.Spec.ConfigName) == 0 {
+		r.Spec.ConfigName = defaultConfigName
+	}
 }
 
 // TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
@@ -54,7 +63,19 @@ var _ webhook.Validator = &Token{}
 func (r *Token) ValidateCreate() error {
 	tokenlog.Info("validate create", "name", r.Name)
 
-	// TODO(user): fill in your validation logic upon object creation.
+	for _, permission := range r.Spec.Permissions {
+		if _, ok := permissionTypes[permission.PermissionType]; !ok {
+			err := fmt.Errorf("invalid permission type")
+			tokenlog.Error(err, "invalid permission type")
+			return err
+		}
+
+		if _, ok := resourceTypes[permission.ResourceType]; !ok {
+			err := fmt.Errorf("invalid resource type")
+			tokenlog.Error(err, "invalid resource type")
+			return err
+		}
+	}
 	return nil
 }
 

@@ -17,6 +17,7 @@ limitations under the License.
 package v1beta1
 
 import (
+	"fmt"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -42,7 +43,9 @@ var _ webhook.Defaulter = &Organization{}
 func (r *Organization) Default() {
 	organizationlog.Info("default", "name", r.Name)
 
-	// TODO(user): fill in your defaulting logic.
+	if len(r.Spec.ConfigName) == 0 {
+		r.Spec.ConfigName = defaultConfigName
+	}
 }
 
 // TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
@@ -54,7 +57,12 @@ var _ webhook.Validator = &Organization{}
 func (r *Organization) ValidateCreate() error {
 	organizationlog.Info("validate create", "name", r.Name)
 
-	// TODO(user): fill in your validation logic upon object creation.
+	if r.Name == defaultOrgName {
+		err := fmt.Errorf("cannot operate on influxdata")
+		organizationlog.Error(err, "forbidden name")
+		return err
+	}
+
 	return nil
 }
 

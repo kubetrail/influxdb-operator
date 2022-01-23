@@ -17,6 +17,7 @@ limitations under the License.
 package v1beta1
 
 import (
+	"fmt"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -54,7 +55,11 @@ var _ webhook.Validator = &Bucket{}
 func (r *Bucket) ValidateCreate() error {
 	bucketlog.Info("validate create", "name", r.Name)
 
-	// TODO(user): fill in your validation logic upon object creation.
+	if r.Spec.SecondsTTL != 0 && r.Spec.SecondsTTL < 3600 {
+		err := fmt.Errorf("secondsTtl needs be either 0 or >= 3600")
+		bucketlog.Error(err, "bucket spec validation error")
+		return err
+	}
 	return nil
 }
 
@@ -62,7 +67,19 @@ func (r *Bucket) ValidateCreate() error {
 func (r *Bucket) ValidateUpdate(old runtime.Object) error {
 	bucketlog.Info("validate update", "name", r.Name)
 
-	// TODO(user): fill in your validation logic upon object update.
+	rOld, ok := old.(*Bucket)
+	if !ok {
+		err := fmt.Errorf("input type assertion error")
+		bucketlog.Error(err, "failed to type assert input")
+		return err
+	}
+
+	if r.Spec.SecondsTTL != rOld.Spec.SecondsTTL ||
+		r.Spec.Description != rOld.Spec.Description {
+		err := fmt.Errorf("spec fields cannot be updated")
+		bucketlog.Error(err, "fields cannot change")
+		return err
+	}
 	return nil
 }
 

@@ -25,11 +25,10 @@ import (
 
 // ConfigSpec defines the desired state of Config
 type ConfigSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// Foo is an example field of Config. Edit config_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	Addr                 string `json:"addr,omitempty"`
+	OrgName              string `json:"orgName,omitempty"`
+	TokenSecretName      string `json:"tokenSecretName,omitempty"`
+	TokenSecretNamespace string `json:"tokenSecretNamespace,omitempty"`
 }
 
 // ConfigStatus defines the observed state of Config

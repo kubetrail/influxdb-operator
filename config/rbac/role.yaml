@@ -1,0 +1,86 @@
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - influxdb.kubetrail.io
+  resources:
+  - buckets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - influxdb.kubetrail.io
+  resources:
+  - buckets/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - influxdb.kubetrail.io
+  resources:
+  - buckets/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - influxdb.kubetrail.io
+  resources:
+  - organizations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - influxdb.kubetrail.io
+  resources:
+  - organizations/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - influxdb.kubetrail.io
+  resources:
+  - organizations/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - influxdb.kubetrail.io
+  resources:
+  - tokens
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - influxdb.kubetrail.io
+  resources:
+  - tokens/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - influxdb.kubetrail.io
+  resources:
+  - tokens/status
+  verbs:
+  - get
+  - patch
+  - update

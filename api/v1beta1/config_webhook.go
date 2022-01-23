@@ -42,7 +42,21 @@ var _ webhook.Defaulter = &Config{}
 func (r *Config) Default() {
 	configlog.Info("default", "name", r.Name)
 
-	// TODO(user): fill in your defaulting logic.
+	if len(r.Spec.OrgName) == 0 {
+		r.Spec.OrgName = defaultOrgName
+	}
+
+	if len(r.Spec.TokenSecretName) == 0 {
+		r.Spec.TokenSecretName = defaultSecretName
+	}
+
+	if len(r.Spec.TokenSecretNamespace) == 0 {
+		r.Spec.TokenSecretNamespace = r.Namespace
+	}
+
+	if len(r.Spec.Addr) == 0 {
+		r.Spec.Addr = defaultAddr
+	}
 }
 
 // TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
