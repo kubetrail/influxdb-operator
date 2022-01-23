@@ -211,8 +211,9 @@ NC="$(shell tput sgr0)"
 # Google artifact registry
 NAME=influxdb-operator
 CATEGORY=services
+TAG=0.0.1-dev
 REPO=us-central1-docker.pkg.dev/${PROJECT}
-IMG_TMP=${REPO}/tmp/${CATEGORY}/${NAME}:$(VERSION)
+IMG_TMP=${REPO}/tmp/${CATEGORY}/${NAME}:${TAG}
 IMG_BASE=${REPO}/artifacts/${CATEGORY}/${NAME}
 
 # sanity check
@@ -255,33 +256,33 @@ podman-build-push: _sanity goimports vendor
 		PROJECT=${PROJECT} \
 		CATEGORY=${CATEGORY} \
 		NAME=${NAME} \
-		VERSION=${VERSION} \
+		TAG=${TAG} \
 		ARCH=amd64 \
 		envsubst | \
-		podman build --arch=amd64 -t ${IMG_BASE}:${VERSION}.amd64 -f -
-	@podman push ${IMG_BASE}:${VERSION}.amd64
+		podman build --arch=amd64 -t ${IMG_BASE}:${TAG}.amd64 -f -
+	@podman push ${IMG_BASE}:${TAG}.amd64
 	@echo -e ${YE}▶ building and pushing arm64 container${NC}
 	@cat Dockerfile-podman.tmpl | \
 		PROJECT=${PROJECT} \
 		CATEGORY=${CATEGORY} \
 		NAME=${NAME} \
-		VERSION=${VERSION} \
+		TAG=${TAG} \
 		ARCH=arm64 \
 		envsubst | \
-		podman build --arch=arm64 -t ${IMG_BASE}:${VERSION}.arm64 -f -
-	@podman push ${IMG_BASE}:${VERSION}.arm64
+		podman build --arch=arm64 -t ${IMG_BASE}:${TAG}.arm64 -f -
+	@podman push ${IMG_BASE}:${TAG}.arm64
 	@echo -e ${YE}▶ creating or modifying manifest${NC}
-	@podman manifest create ${IMG_BASE}:${VERSION} || \
-		for digest in $$(podman manifest inspect ${IMG_BASE}:${VERSION} | jq -r '.manifests[].digest'); do \
-			podman manifest remove ${IMG_BASE}:${VERSION} $${digest}; \
+	@podman manifest create ${IMG_BASE}:${TAG} || \
+		for digest in $$(podman manifest inspect ${IMG_BASE}:${TAG} | jq -r '.manifests[].digest'); do \
+			podman manifest remove ${IMG_BASE}:${TAG} $${digest}; \
 		done
 	@echo -e ${YE}▶ adding amd64 container to manifest${NC}
-	@podman manifest add ${IMG_BASE}:${VERSION} ${IMG_BASE}:${VERSION}.amd64
+	@podman manifest add ${IMG_BASE}:${TAG} ${IMG_BASE}:${TAG}.amd64
 	@echo -e ${YE}▶ adding arm64 container to manifest${NC}
-	@podman manifest add ${IMG_BASE}:${VERSION} ${IMG_BASE}:${VERSION}.arm64
+	@podman manifest add ${IMG_BASE}:${TAG} ${IMG_BASE}:${TAG}.arm64
 	@echo -e ${YE}▶ pushing manifest${NC}
-	@podman push ${IMG_BASE}:${VERSION}
-	@podman manifest inspect ${IMG_BASE}:${VERSION} | jq '.'
+	@podman push ${IMG_BASE}:${TAG}
+	@podman manifest inspect ${IMG_BASE}:${TAG} | jq '.'
 	@echo -e ${YE}▶ container images${NC}
 	@podman images | grep ${IMG_BASE}
 
@@ -290,7 +291,7 @@ podman-build-push: _sanity goimports vendor
 deploy-dry-run: manifests kustomize ## Deploy-dry-run generates k8s manifests without deploying
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 	$(KUSTOMIZE) build config/default --output config/extra/manifests.yaml
-	sed -i -e "s/image: controller:latest/image: $$(echo -n ${IMG_BASE}:${VERSION} | sed -e 's/\//\\\//g')/g" config/extra/manifests.yaml
+	sed -i -e "s/image: controller:latest/image: $$(echo -n ${IMG_BASE}:${TAG} | sed -e 's/\//\\\//g')/g" config/extra/manifests.yaml
 	$(KUSTOMIZE) build config/extra > config/samples/manifests.yaml
 
 # logs monitors logs from the controller
