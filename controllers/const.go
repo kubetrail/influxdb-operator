@@ -2,16 +2,24 @@ package controllers
 
 const (
 	finalizer                     = "influxdb.kubetrail.io/finalizer"
-	label                         = "influxdb.kubetrail.io/group"
 	reasonObjectInitialized       = "objectInitialized"
 	reasonObjectMarkedForDeletion = "objectMarkedForDeletion"
 	reasonFinalizerAdded          = "finalizerAdded"
-	reasonSynced                  = "synced"
-	reasonDeleted                 = "deleted"
+	reasonCreatedBucket           = "createdBucket"
+	reasonDeletedBucket           = "deletedBucket"
+	reasonCreatedOrganization     = "createdOrganization"
+	reasonDeletedOrganization     = "deletedOrganization"
+	reasonCreatedToken            = "createdToken"
+	reasonDeletedToken            = "deletedToken"
 	phasePending                  = "pending"
-	phaseRunning                  = "running"
-	phaseError                    = "error"
+	phaseReady                    = "ready"
 	phaseTerminating              = "terminating"
 	conditionTypeObject           = "object"
-	conditionTypeRuntime          = "runtime"
+	conditionTypeInfluxdb         = "influxdb"
+)
+
+const (
+	configInfluxdb = "default"
+	keyToken       = "token"
+	keyTokenId     = "tokenId"
 )

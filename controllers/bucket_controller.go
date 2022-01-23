@@ -18,13 +18,15 @@ package controllers
 
 import (
 	"context"
+	"errors"
+	"time"
 
+	influxdbv1beta1 "github.com/kubetrail/influxdb-operator/api/v1beta1"
+	apimachineryerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-
-	influxdbv1beta1 "github.com/kubetrail/influxdb-operator/api/v1beta1"
 )
 
 // BucketReconciler reconciles a Bucket object
@@ -36,6 +38,9 @@ type BucketReconciler struct {
 //+kubebuilder:rbac:groups=influxdb.kubetrail.io,resources=buckets,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=influxdb.kubetrail.io,resources=buckets/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=influxdb.kubetrail.io,resources=buckets/finalizers,verbs=update
+//+kubebuilder:rbac:groups=influxdb.kubetrail.io,resources=configs,verbs=get;list;watch
+//+kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch
+//+kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -47,11 +52,76 @@ type BucketReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.10.0/pkg/reconcile
 func (r *BucketReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	reqLogger := log.FromContext(ctx)
 
-	// your logic here
+	object := &influxdbv1beta1.Bucket{}
+	if err := r.Get(ctx, req.NamespacedName, object); err != nil {
+		if apimachineryerrors.IsNotFound(err) {
+			// Request object not found, could have been deleted after reconcile request.
+			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
+			// Return and don't requeue
+			reqLogger.Info("object not found")
+			return ctrl.Result{}, nil
+		}
+		// Error reading the object - requeue the request.
+		reqLogger.Error(err, "failed to get object")
+		return ctrl.Result{}, err
+	}
 
-	return ctrl.Result{}, nil
+	// Check if the Object instance is marked to be deleted, which is
+	// indicated by the deletion timestamp being set.
+	if object.GetDeletionTimestamp() != nil {
+		if err := r.FinalizeStatus(ctx, object); err != nil {
+			if errors.Is(err, ObjectUpdated) {
+				return ctrl.Result{}, nil
+			}
+			return ctrl.Result{}, err
+		}
+
+		if err := r.FinalizeResources(ctx, object, req); err != nil {
+			if errors.Is(err, ObjectUpdated) {
+				return ctrl.Result{}, nil
+			}
+			return ctrl.Result{}, err
+		}
+
+		if err := r.RemoveFinalizer(ctx, object); err != nil {
+			if errors.Is(err, ObjectUpdated) {
+				return ctrl.Result{}, nil
+			}
+			return ctrl.Result{}, err
+		}
+
+		return ctrl.Result{}, nil
+	}
+
+	// Add finalizer for this CR and update the object.
+	if err := r.AddFinalizer(ctx, object); err != nil {
+		if errors.Is(err, ObjectUpdated) {
+			return ctrl.Result{}, nil
+		}
+		return ctrl.Result{}, err
+	}
+
+	if err := r.InitializeStatus(ctx, object); err != nil {
+		if errors.Is(err, ObjectUpdated) {
+			return ctrl.Result{}, nil
+		}
+		return ctrl.Result{}, err
+	}
+
+	if err := r.ReconcileResources(ctx, object, req); err != nil {
+		if errors.Is(err, ObjectUpdated) {
+			return ctrl.Result{}, nil
+		}
+		return ctrl.Result{}, err
+	}
+
+	// requeue to maintain the state
+	return ctrl.Result{
+		Requeue:      true,
+		RequeueAfter: time.Minute,
+	}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.

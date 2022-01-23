@@ -7,6 +7,26 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - influxdb.kubetrail.io
   resources:
   - buckets
@@ -32,6 +52,14 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - influxdb.kubetrail.io
+  resources:
+  - configs
+  verbs:
+  - get
+  - list
+  - watch
 - apiGroups:
   - influxdb.kubetrail.io
   resources:

@@ -211,7 +211,7 @@ NC="$(shell tput sgr0)"
 # Google artifact registry
 NAME=influxdb-operator
 CATEGORY=services
-TAG=0.0.1-dev
+TAG=0.0.1-dev-0
 REPO=us-central1-docker.pkg.dev/${PROJECT}
 IMG_TMP=${REPO}/tmp/${CATEGORY}/${NAME}:${TAG}
 IMG_BASE=${REPO}/artifacts/${CATEGORY}/${NAME}
@@ -286,9 +286,9 @@ podman-build-push: _sanity goimports vendor
 	@echo -e ${YE}▶ container images${NC}
 	@podman images | grep ${IMG_BASE}
 
-# deploy-dry-run creates manifests with custom updates of image name
-.PHONY: deploy-dry-run
-deploy-dry-run: manifests kustomize ## Deploy-dry-run generates k8s manifests without deploying
+# deploy-manifests creates manifests with custom updates of image name
+.PHONY: deploy-manifests
+deploy-manifests: manifests kustomize ## Deploy-manifests generates k8s manifests without deploying
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 	$(KUSTOMIZE) build config/default --output config/extra/manifests.yaml
 	sed -i -e "s/image: controller:latest/image: $$(echo -n ${IMG_BASE}:${TAG} | sed -e 's/\//\\\//g')/g" config/extra/manifests.yaml
