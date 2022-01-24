@@ -1,11 +1,10 @@
 package v1beta1
 
 const (
-	defaultOrgName         = "influxdata"
-	defaultConfigName      = "default"
-	defaultSecretName      = "influxdb-token"
-	defaultSecretNamespace = "influxdb-system"
-	defaultAddr            = "http://influxdb.influxdb-system.svc.cluster.local"
+	defaultOrgName    = "influxdata"
+	defaultConfigName = "default"
+	defaultSecretName = "influxdb-token"
+	defaultAddr       = "http://influxdb2.influxdb2-system.svc.cluster.local"
 )
 
 const (

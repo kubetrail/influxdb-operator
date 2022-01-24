@@ -211,7 +211,7 @@ NC="$(shell tput sgr0)"
 # Google artifact registry
 NAME=influxdb-operator
 CATEGORY=services
-TAG=0.0.1-dev-0
+TAG=0.0.1-dev-1
 REPO=us-central1-docker.pkg.dev/${PROJECT}
 IMG_TMP=${REPO}/tmp/${CATEGORY}/${NAME}:${TAG}
 IMG_BASE=${REPO}/artifacts/${CATEGORY}/${NAME}
@@ -293,6 +293,8 @@ deploy-manifests: manifests kustomize ## Deploy-manifests generates k8s manifest
 	$(KUSTOMIZE) build config/default --output config/extra/manifests.yaml
 	sed -i -e "s/image: controller:latest/image: $$(echo -n ${IMG_BASE}:${TAG} | sed -e 's/\//\\\//g')/g" config/extra/manifests.yaml
 	$(KUSTOMIZE) build config/extra > config/samples/manifests.yaml
+	@echo "==============="
+	@echo kubectl apply -f config/samples/manifests.yaml
 
 # logs monitors logs from the controller
 .PHONY: logs
