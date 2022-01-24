@@ -1,0 +1,6 @@
+apiVersion: influxdb.kubetrail.io/v1beta1
+kind: Config
+metadata:
+  name: config-sample
+spec:
+  # Add fields here

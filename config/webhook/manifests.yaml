@@ -1,0 +1,176 @@
+
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  creationTimestamp: null
+  name: mutating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /mutate-influxdb-kubetrail-io-v1beta1-bucket
+  failurePolicy: Fail
+  name: mbucket.kb.io
+  rules:
+  - apiGroups:
+    - influxdb.kubetrail.io
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - buckets
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /mutate-influxdb-kubetrail-io-v1beta1-config
+  failurePolicy: Fail
+  name: mconfig.kb.io
+  rules:
+  - apiGroups:
+    - influxdb.kubetrail.io
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - configs
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /mutate-influxdb-kubetrail-io-v1beta1-organization
+  failurePolicy: Fail
+  name: morganization.kb.io
+  rules:
+  - apiGroups:
+    - influxdb.kubetrail.io
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - organizations
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /mutate-influxdb-kubetrail-io-v1beta1-token
+  failurePolicy: Fail
+  name: mtoken.kb.io
+  rules:
+  - apiGroups:
+    - influxdb.kubetrail.io
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - tokens
+  sideEffects: None
+
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  creationTimestamp: null
+  name: validating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-influxdb-kubetrail-io-v1beta1-bucket
+  failurePolicy: Fail
+  name: vbucket.kb.io
+  rules:
+  - apiGroups:
+    - influxdb.kubetrail.io
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - buckets
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-influxdb-kubetrail-io-v1beta1-config
+  failurePolicy: Fail
+  name: vconfig.kb.io
+  rules:
+  - apiGroups:
+    - influxdb.kubetrail.io
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - configs
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-influxdb-kubetrail-io-v1beta1-organization
+  failurePolicy: Fail
+  name: vorganization.kb.io
+  rules:
+  - apiGroups:
+    - influxdb.kubetrail.io
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - organizations
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-influxdb-kubetrail-io-v1beta1-token
+  failurePolicy: Fail
+  name: vtoken.kb.io
+  rules:
+  - apiGroups:
+    - influxdb.kubetrail.io
+    apiVersions:
+    - v1beta1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - tokens
+  sideEffects: None

@@ -1,0 +1,61 @@
+domain: kubetrail.io
+layout:
+- go.kubebuilder.io/v3
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
+projectName: influxdb-operator
+repo: github.com/kubetrail/influxdb-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: kubetrail.io
+  group: influxdb
+  kind: Config
+  path: github.com/kubetrail/influxdb-operator/api/v1beta1
+  version: v1beta1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: kubetrail.io
+  group: influxdb
+  kind: Organization
+  path: github.com/kubetrail/influxdb-operator/api/v1beta1
+  version: v1beta1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: kubetrail.io
+  group: influxdb
+  kind: Bucket
+  path: github.com/kubetrail/influxdb-operator/api/v1beta1
+  version: v1beta1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: kubetrail.io
+  group: influxdb
+  kind: Token
+  path: github.com/kubetrail/influxdb-operator/api/v1beta1
+  version: v1beta1
+  webhooks:
+    defaulting: true
+    validation: true
+    webhookVersion: v1
+version: "3"

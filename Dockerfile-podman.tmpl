@@ -1,0 +1,19 @@
+# this dockerfile is a template which gets processed using
+# envsubst command, which fills in the variables PROJECT, TAG and ARCH.
+# this works because we are strictly working with Go binaries that are
+# easy to cross-compile. So the step-1 injects the binaries for
+# amd64 and arm64 arch into a separate container which gets used as base.
+# we then pull the binary corresponding to the arch requested and
+# pack a new container passing command line argument to ensure that the
+# arch of the new container image matches the arch requested.
+
+FROM us-central1-docker.pkg.dev/${PROJECT}/tmp/${CATEGORY}/${NAME}:${TAG} as base
+
+# Use distroless as minimal base image to package the manager binary
+# Refer to https://github.com/GoogleContainerTools/distroless for more details
+FROM gcr.io/distroless/static:nonroot
+WORKDIR /
+COPY --from=base /manager.${ARCH} ./manager
+USER 65532:65532
+
+ENTRYPOINT ["/manager"]
