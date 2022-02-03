@@ -247,7 +247,13 @@ vendor:
 # to a manifest file that is compatible with both arch
 # This will only work with podman on Linux OS!
 .PHONY: podman-build-push
-podman-build-push: _sanity goimports vendor
+podman-build-push: _podman-build-push generate
+	@podman manifest inspect ${IMG_BASE}:${TAG} | jq '.'
+	@echo -e ${YE}▶ container images${NC}
+	@podman images | grep ${IMG_BASE}
+
+.PHONY: _podman-build-push
+_podman-build-push: _sanity goimports vendor
 	@echo -e ${YE}▶ building and pushing tmp container${NC}
 	@podman build -t ${IMG_TMP} -f ./Dockerfile-podman
 	@podman push ${IMG_TMP}
@@ -282,14 +288,11 @@ podman-build-push: _sanity goimports vendor
 	@podman manifest add ${IMG_BASE}:${TAG} ${IMG_BASE}:${TAG}.arm64
 	@echo -e ${YE}▶ pushing manifest${NC}
 	@podman push ${IMG_BASE}:${TAG}
-	@podman manifest inspect ${IMG_BASE}:${TAG} | jq '.'
-	@echo -e ${YE}▶ container images${NC}
-	@podman images | grep ${IMG_BASE}
 
 # deploy-manifests creates manifests with custom updates of image name
 .PHONY: deploy-manifests
 deploy-manifests: manifests kustomize ## Deploy-manifests generates k8s manifests without deploying
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	cd config/manager && $(KUSTOMIZE) edit set image controller=controller:latest
 	$(KUSTOMIZE) build config/default --output config/extra/manifests.yaml
 	sed -i -e "s/image: controller:latest/image: $$(echo -n ${IMG_BASE}:${TAG} | sed -e 's/\//\\\//g')/g" config/extra/manifests.yaml
 	$(KUSTOMIZE) build config/extra > config/samples/manifests.yaml
